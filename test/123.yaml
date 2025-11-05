@@ -1,0 +1,7 @@
+apiVersion: network.ppnb.io/v1alpha1
+kind: NodeNetwork
+metadata:
+ name: node-5
+spec:
+  instanceID: "123123-123123-123123-123123"
+  nodePreAllocate: 20

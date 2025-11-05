@@ -1,0 +1,9 @@
+apiVersion: network.ppnb.io/v1alpha1
+kind: NodeNetwork
+metadata:
+  labels:
+    app.kubernetes.io/name: pam-cni
+    app.kubernetes.io/managed-by: kustomize
+  name: nodenetwork-sample
+spec:
+  # TODO(user): Add fields here

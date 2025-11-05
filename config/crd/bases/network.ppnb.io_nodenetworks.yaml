@@ -1,0 +1,76 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.0
+  name: nodenetworks.network.ppnb.io
+spec:
+  group: network.ppnb.io
+  names:
+    kind: NodeNetwork
+    listKind: NodeNetworkList
+    plural: nodenetworks
+    singular: nodenetwork
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: NodeNetwork is the Schema for the nodenetworks API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: |-
+              NodeNetworkSpec defines the desired state of NodeNetwork.
+              NodeNetworkSpec 定义节点网络的期望状态
+            properties:
+              cidr:
+                description: CIDR 是分配给该节点的网段，例如 "192.168.10.0/24", 由判断后写
+                type: string
+              instanceID:
+                description: 节点虚机的uuid
+                type: string
+              nodePreAllocate:
+                description: 节点预热几个地址, 默认10个，可以通过 daemon的annotaion来判断
+                type: integer
+            type: object
+          status:
+            description: NodeNetworkStatus defines the observed state of NodeNetwork.
+            properties:
+              lastSyncTime:
+                description: LastSyncTime 是最近一次同步到 Neutron 的时间
+                format: date-time
+                type: string
+              message:
+                description: Message 记录一些调试信息
+                type: string
+              ready:
+                description: |-
+                  INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+                  Important: Run "make" to regenerate code after modifying this file
+                type: boolean
+            required:
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
