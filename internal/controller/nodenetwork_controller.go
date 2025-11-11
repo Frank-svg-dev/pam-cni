@@ -72,10 +72,6 @@ func (r *NodeNetworkReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, nil
 	}
 
-	//if nodeNetwork.Status.Ready == true {
-	//	return ctrl.Result{}, nil
-	//}
-
 	nnList := &networkv1alpha1.NodeNetworkList{}
 
 	if err := r.List(context.Background(), nnList); err != nil {
@@ -96,19 +92,18 @@ func (r *NodeNetworkReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		//分配Cidr
 		nodeNetwork.Spec.CIDR = r.CidrList[0]
 		r.CidrList = r.CidrList[1:]
+		nodeNetwork.Finalizers = []string{nodeNetwork.Name}
+
+		logger.Info(fmt.Sprintf("%s 分配 cidr 成功为: %+v, 预计预热 %v 个地址\n", nodeNetwork.Name, nodeNetwork.Spec.CIDR, nodeNetwork.Spec.NodePreAllocate))
+
+		if err := r.Update(ctx, nodeNetwork); err != nil {
+			logger.Error(err, fmt.Sprintf("update subnet spec failed %+v", err.Error()))
+			return ctrl.Result{}, err
+		}
 	}
 
 	if nodeNetwork.Spec.NodePreAllocate == 0 {
 		nodeNetwork.Spec.NodePreAllocate = 10
-	}
-
-	nodeNetwork.Finalizers = []string{nodeNetwork.Name}
-
-	logger.Info(fmt.Sprintf("%s 分配 cidr 成功为: %+v, 预计预热 %v 个地址\n", nodeNetwork.Name, nodeNetwork.Spec.CIDR, nodeNetwork.Spec.NodePreAllocate))
-
-	if err := r.Update(ctx, nodeNetwork); err != nil {
-		logger.Error(err, fmt.Sprintf("update subnet spec failed %+v", err.Error()))
-		return ctrl.Result{}, err
 	}
 
 	nodeNetwork.Status.Ready = true
@@ -119,12 +114,13 @@ func (r *NodeNetworkReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, err
 	}
 
+	logger.Info(fmt.Sprintf("subnet %+v, cidr is : %s", nodeNetwork.Name, nodeNetwork.Spec.CIDR))
+
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *NodeNetworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
-
 	r.CidrList, r.Err = r.generateCidrList("200.0.0.0/16")
 
 	if r.Err != nil || len(r.CidrList) == 0 {

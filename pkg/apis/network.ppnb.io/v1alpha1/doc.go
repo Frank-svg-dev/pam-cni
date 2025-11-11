@@ -18,4 +18,3 @@ limitations under the License.
 // +k8s:deepcopy-gen=package
 // +groupName=network.ppnb.io    # 这里的group需要添加domain
 package v1alpha1
-
